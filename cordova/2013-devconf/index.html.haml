@@ -1,0 +1,244 @@
+---
+layout: reveal
+title: "Graphene | Web UI Testing with Fun"
+---
+
+:css
+  .reveal { font-family: "DejaVu Sans",Verdana,sans-serif; }
+  .ice-cream .state-background { background:url(assets/states/ice-cream.jpg); background-position:center; }
+  .ice-cream-fallen .state-background { background:url(assets/states/ice-cream-fallen.jpg); background-position:center; }
+  .common-software-testing .state-background { background:url(assets/states/commonsoftwaretestingicecreamcone.png); background-position:center; }
+  .ideal-software-testing .state-background { background:url(assets/states/automatedtestingpyramid.png); background-position:center; }
+  section[data-state="alert"] h2 { color: white; }
+  section[data-state="alert"] h4 { color: white; }
+  .enjoy .reveal .state-background { background-color: #c4ec8a; color: #381f4d;  }
+  .enjoy .reveal h1 { color: #3b1375; }
+  .reveal .prettyprint { color: #3b1375; }
+  
+
+%section
+  %img.plain{:src => "assets/arquillian_icon.png"}
+  %h1 Graphene
+  %h2 Web UI Testing with Fun
+%section
+  %h2 ...aka Good Part of Selenium
+%section
+  %h2 lfryc> $ whoami
+  %ul
+    %ul
+      %li
+        %h3 Lukas Fryc
+      %li Graphene Project Lead
+      %li Software Engineer @ Red Hat
+%section
+  %h2 jhuska> $ whoami
+  %ul
+    %ul
+      %li
+        %h3 Juraj Huska
+      %li Graphene Committer
+      %li RichFaces QA Engineer @ Red Hat
+%section
+  %h2 Agenda
+  %ul
+    %li Testing User Interfaces
+    %li WebDriver
+    %li Graphene
+    %li Best Practices
+%section
+  %h2 Who is the session for?
+  %ul
+    %li.fragment Java people
+    %li.fragment Hackers on the Web
+    %li.fragment Who cares about their code
+%section
+  %h2 ...but not only
+  %ul
+    %li.fragment general concepts
+    %li.fragment applicable elsewhere
+%section
+  %h2 The little bit of theory...
+%section{:data => {:state => "ice-cream"}}
+%section{:data => {:state => "common-software-testing"}}
+%section{:data => {:state => "ideal-software-testing"}}
+%section{:data => {:state => "ice-cream-fallen"}}
+%section
+  %h2 Trust in the Code
+  %ul
+    %li.fragment yours
+    %li.fragment teammates'
+    %li.fragment third parties
+%section
+  %blockquote.quote 
+    The purpose of automated testing is to enable change. Verifying correctness is just a nice side effect.
+  .author - Jeremy Norris
+%section
+  %h2 Web UI testing - Importance
+  %ul
+    %li.fragment browser integration complexity
+    %li.fragment it's a user we care about
+%section
+  %img.plain{:src => "assets/logos/selenium.png"}
+  %h1 WebDriver
+%section
+  %h2 Browser Automation
+  %ul
+    %li.fragment Friendly API
+    %ul.fragment
+      %li Object Oriented
+    %li.fragment Extensive Browser Support
+    %li.fragment W3C Browser Automation Spec
+%section
+  %h2 Real Testing
+  %ul
+    %li.fragment no mocks
+    %li.fragment gimme real browsers!
+%section{:data=>{:state=>"alert"}}
+  %h2 Automation is #$% Hard
+  %ul
+    %li.fragment time-consuming
+    %li.fragment hard-to-debug
+    %li.fragment unstable
+%section
+  %h2 B@[$#|T
+  %ul
+    %li.fragment it's just hard to find a way
+%section
+  %h2
+    %span =>
+    %span.fragment Best Practices
+    %span.fragment =>
+%section
+  %img.plain{:src => "assets/arquillian_icon.png"}
+  %h1 Graphene
+  %h2 Let's Make Testing Fun Again
+%section
+  %h2 Simplified API
+  %ul
+    %li.fragment one-liners
+    %li.fragment readable scenarios
+%section
+  %h2.todo Stay DRY
+%section
+  %h1 Speed of Authoring
+%section{:data=>{:state=>"code"}}
+  %pre{:class => "prettyprint", :style => "font-size: 1em;"}
+    %code{:id => "fluents"}
+      = preserve do
+        :escaped
+          @Drone WebDriver browser;
+%section
+  %h3 Reusable Browser Session
+  %ul
+    %li.fragment fast test authoring
+    %li.fragment outstanding debugging capabilities
+%section
+  %h1 Dealing with Asynchronicity
+%section
+  %h2 Synchronization with Browser
+  %ul
+    %li.fragment Exact Conditions
+%section{:data=>{:state=>"code"}}
+  %h3 Fluent Waiting API
+  %pre{:class => "prettyprint", :style => "font-size: 0.7em;"}
+    %code{:id => "fluents"}
+      = preserve do
+        :escaped
+          import static org.jboss.arquillian.ajocado.Graphene.*;
+
+          waitGui()
+          waitAjax()
+          waitModel()
+
+          waitGui().until().element(...).is().present();
+%section{:data=>{:state=>"code"}}
+  %h3 Request Guards
+  %pre{:class => "prettyprint", :style => "font-size: 0.7em;"}
+    %code{:id => "fluents"}
+      = preserve do
+        :escaped
+          import static org.jboss.arquillian.ajocado.Graphene.*;
+
+          guardHttp(...)
+          guardAjax(...)
+          
+          guardAjax(element).click();
+          guardAjax(autocomplete).selectIndex(0);
+%section
+  %h1 High-Level Abstractions
+%section{:data=>{:state=>"code"}}
+  %h3 Page Objects
+  %pre{:class => "prettyprint", :style => "font-size: 0.7em;"}
+    %code{:id => "fluents"}
+      = preserve do
+        :escaped
+          @Page EventsPage events;
+%section
+  %h3 Page Fragments
+  %pre{:class => "prettyprint", :style => "font-size: 0.7em;"}
+    %code{:id => "fluents"}
+      = preserve do
+        :escaped
+          @FindBy(css = ".ui-suggestion") SuggestionBox search;
+%section
+  %h1 Maintenance
+%section
+  %h2 Code Inspection
+  %ul
+    %li.fragment In-Browser Debugger
+%section
+  %h2 Failure Reporting
+  %ul
+    %li.fragment Screen Recorder
+    %li.fragment ...
+%section
+  %h1 Write Once,
+  %h1.fragment Run Everywhere
+%section
+  %h2 Run Everywhere
+  %ul
+    %li.fragment Support for all mainstream browsers
+    %ul.fragment
+      %li Chrome
+      %li Firefox
+      %li Internet Explorer
+      %li Opera
+    %li.fragment Even mobile ones
+    %ul.fragment
+      %li Android
+      %li iPhone
+%section{:data=>{:state=>"alert"}}
+  %h4 But I don't own a lab...
+  %h2.fragment Infrastructure Investment
+%section
+  %h2 Cloud Browser Providers
+  %ul
+    %li.fragment SauceLabs
+%section{:data=>{:state=>"alert"}}
+  %h4 It's so Heavy-Weight
+  %h2.fragment Truth = Real Browsers are Heavy
+%section
+  %h2 Headless Testing
+  %ul
+    %li.fragment Testing without the Display
+    %li.fragment PhantomJS
+    %li.fragment Post-Commit Verification
+%section
+  %h2 Graphene is...
+  %ul
+    %li.fragment enhanced Java API for browser automation
+    %li.fragment for writing...
+    %ul
+      %li.fragment readable,
+      %li.fragment stable,
+      %li.fragment debuggable,
+      %li.fragment Ajax-enabled tests
+  %h3.fragment ...outstanding helper in Web UI Test Automation
+%section{:data=>{:state=>"enjoy"}}
+  %img.plain{:src => "assets/arquillian_icon_no_shadow.png"}
+  %h1 Enjoy the Testing!
+      
+  
+
+%script{:type => "text/javascript", :src => "lib/jquery-1.9.1.min.js"}
+/%script{:type => "text/javascript", :src => "assets/remote.js"}
