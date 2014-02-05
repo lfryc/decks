@@ -1,0 +1,293 @@
+[[rethinking-web-app-development]]
+= Rethinking _Web App Development_ with _Web Components_
+Lukas Fryc <https://github.com/lfryc[@lfryc]>
+v1.0, Feb 05, 2014
+//:hashtag: #DV13-asciidoctor
+:copyright: CC BY-SA 2.0
+:website: http://lukas.fryc.eu
+:dzslides-aspect: 4-3
+:math:
+:icons: font
+include::attributes.conf[]
+
+[.topic.intro]
+== Web App Engineering?
+
+== !
+
+[.statement]
+* HTML
+* CSS
+* JavaScript
+
+[.topic.intro]
+== Inherent Complexity
+
+== !
+
+??? Gmail source code
+
+[.topic.intro]
+== Frameworks _handles_ complexity
+
+== !
+
+* JSF
+* GWT
+* jQuery UI
+* Bootstrap
+* ExtJS
+
+[.topic.intro]
+== Frameworks = _Fragmentation_
+
+== !
+
+
+* platform / language
+* limited knowledge sharing
+* reinventing a wheel
+* tremendous resource wasting
+* but that's framework vendor business...
+
+[.topic.intro]
+== portability
+
+== !
+
+* everytime you want to upgrade
+* reuse what we have
+* limited testing
+
+[.topic]
+== Fail
+
+* let's choose framework.next
+
+[.topic.intro]
+== _Componentize_ the web
+
+[.topic.source.lhs]
+== Wait...
+
+[source, html]
+----
+<input type="progress">
+
+<input type="date">
+
+<select>
+  <option>M</option>
+  <option disabled>L</option>
+  <option disabled>XL</option>
+  <option>XXL</option>
+</select>
+----
+
+[.topic.intro]
+== ...and _patch_ the web
+
+[.topic.source]
+== Declaratively
+
+[source, html]
+----
+<div class="panel panel-warning">
+  <div class="panel-header">Warning</div>
+  <div class="panel-body">
+      <div class="page-header">
+          <i class="icon-wrench icon-large icon-red"></i>
+          <h1>Service</h1>
+      </div>
+  </div>
+  <div class="panel-footer"></div>
+</div>
+----
+
+[.topic.source]
+== Programatically
+
+[source, html]
+----
+<div id="suggestion-box" />
+
+<!-- meanwhile somewhere in external file far far away... -->
+<script>
+  $(document).ready(function() {
+    $("#suggestion-box").autocomplete({
+      source: ['JavaScript', 'Baby']
+    });
+  });
+</script>
+----
+
+[.intro]
+== !
+
+* Limited Encapsulation
+** > DOM
+** > CSS
+** > Global Context
+
+[.intro]
+== !
+
+Enter the web of _2014_...
+
+[.intro.topic]
+== *Web* Components
+
+== !
+
+"Simple premise: Developers should be free to extend the vocabulary of HTML itself."
+-- Mark Dalgleish
+
+[.source]
+== !
+
+[source, html]
+----
+<x-panel header="Warning">
+  <x-icon type="wrench" />
+  <h1>Service</h1>
+</x-panel>
+----
+
+[source, html]
+----
+<x-autocomplete suggestions="{{ expression }}">
+----
+
+[.intro]
+== !
+
+* Pieces
+** > Templates
+** > Decorators
+** > Custom Elements
+** > HTML Imports
+** > Shadow DOM
+
+[.topic.source]
+== Templates
+
+[source, html]
+----
+<template id="x-panel">
+    <div>
+        <div class="panel-header">
+		<content select="x-header" />
+	</div>
+	<div class="panel-body">
+		<content />
+	</div>
+	<div class="panel-body">
+		<content select="x-footer" />
+	</div>
+    </div>
+</template>
+----
+
+[.topic.source]
+== Decorators
+
+[source, html]
+----
+<decorator id="details-open">
+  <template>
+    <a id="summary">
+        &triangledown; <content select="summary" />
+    </a>
+    <content />
+  </template>
+</decorator>
+----
+
+[source, css]
+----
+details[open] {
+    decorator: url(#details-open);
+}
+----
+
+[source, html]
+----
+<details open>
+    <summary>Timepieces</summary>
+    <ul>
+      <li>Sundial</li>
+      <li>Cuckoo clock</li>
+      <li>Wristwatch</li>
+    </ul>
+</details>
+----
+
+[.topic.source]
+== Custom Elements
+
+
+[source, html]
+----
+<element name="x-autocomplete">
+  <template>
+    <div>…</div>
+  </template>
+  <script>
+    ({
+      suggestions: []
+    });
+  </script>
+</element>
+----
+
+[.topic.source]
+== HTML Imports
+
+
+[source, html]
+----
+<head>
+    <link rel="import" href="x-autocomplete.html" />
+</head>
+
+<body>
+    <x-autocomplete suggestions="…">
+</body>
+----
+
+[.topic.source]
+== Shadow DOM
+
+* Shadow host
+* Shadow root
+* Encapsulation
+** Event re-targeting
+** CSS boundary
+
+[.topic.intro]
+== _Web Components_
+* _encapsulation_ made right
+* common _widget architecture_ for frameworks
+
+[.topic.intro]
+== Can I use it _today_?
+
+[.topic]
+== Music of the Future
+
+* support across browsers
+* flags
+
+[.topic]
+== Polyfills
+- [detail]#Google's# Polymer
+- [detail]#Mozilla's# X-Tags
+
+[.topic.intro]
+== Demo
+
+[.topic]
+== Production ready?
+- not yet
+- but some projects already use it
+- use anywhere you expect developers having latest browsers
