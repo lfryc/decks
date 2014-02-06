@@ -1,0 +1,479 @@
+[[rethinking-web-app-development]]
+= _JSF 2.2_ Deep Dive with _RichFaces 5_
+Lukas Fryc <https://github.com/lfryc[@lfryc]>
+v1.0, Feb 05, 2014
+//:hashtag: #DV13-asciidoctor
+:copyright: CC BY-SA 2.0
+:website: http://lukas.fryc.eu
+:dzslides-aspect: 4-3
+:math:
+:icons: font
+include::attributes.conf[]
+
+[.topic.intro]
+== *Big* Tickets
+
+[.topic.intro]
+== *Big*
+
+[.pull-right]
+* HTML5 friendly
+* Stateless views
+* Faces Flows
+* Resource Library Contracts
+
+[.topic.intro]
+== _HTML5_ friendly
+
+[.topic.source]
+== How can JSF look like?
+
+[source, html]
+----
+<!DOCTYPE html>
+<html class="no-js">
+    <head>
+        <meta charset="utf-8">
+        <meta http-equiv="X-UA-Compatible" content="IE=edge">
+        <title></title>
+        <meta name="description" content="">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+
+        <link rel="stylesheet" href="css/normalize.css">
+        <link rel="stylesheet" href="css/main.css">
+        <script src="js/vendor/modernizr-2.7.1.min.js"></script>
+    </head>
+    <body>
+        <p>Hello world! This is HTML5 Boilerplate.</p>
+
+        <script src="//ajax.googleapis.com/ajax/libs/jquery/1.11.0/jquery.min.js"></script>
+        <script>window.jQuery || document.write('<script src="js/vendor/jquery-1.11.0.min.js"><\/script>')</script>
+        <script src="js/plugins.js"></script>
+        <script src="js/main.js"></script>
+
+        <!-- Google Analytics: change UA-XXXXX-X to be your site's ID. -->
+        <script>
+            
+        </script>
+    </body>
+</html>
+----
+
+[.topic.source]
+== Passthrough elements
+
+[source, html]
+----
+<form>
+  <input type="text" j:value="#{login.user}" />
+
+  <input type="password" j:value="#{login.password}" />
+
+  <input type="submit" j:action="#{login.performLogin()}">
+      <f:ajax render="@form" />
+  </input>
+</form>
+----
+
+
+[.topic.source]
+== Equivalent Code
+
+[source, html]
+----
+<form>
+  <h:inputText value="#{login.user}" />
+
+  <h:inputPassword value="#{login.password}" />
+
+  <h:commandButton action="{login.performLogin()}">
+      <f:ajax render="@form" />
+  </h:commandButton>
+</form>
+----
+
+
+[.topic.source]
+== Passthrough _Elements_ vs. _Attributes_
+
+[source, html]
+----
+<input type="password" value="#{login.password}" placeholder="…" />
+
+<h:inputPassword value="#{login.password}" p:placeholder="…" />
+----
+
+[.topic.source]
+== Enhancing any element
+
+[source, html]
+----
+<div jsf:id="counter">
+    <f:ajax event="click"
+            render="counter"
+            listener="#{counterController.increment}" />
+    
+    <span j:rendered="#{counterController.count == 0}">
+        Click here to increment
+    </span>
+
+    <span j:rendered="#{counterController.count > 0}">
+        Clicks: #{counterController.count}
+    </span>
+</div>
+----
+
+
+[.topic]
+== _HTML5 Markup_ in Nutshell
+
+* _>_ inspired by Wicket
+* _>_ XHTML
+* _>_ passthrough elements limited to known components
+
+
+[.topic.intro]
+== _Stateless_ views
+
+[.topic]
+== Kind of state in JSF application
+
+* > Component Tree
+* > Model Tier
+* > Persistence Tier
+
+[.topic]
+== Kind of state in JSF application
+
+* _> Component Tree_
+* > Model Tier
+* > Persistence Tier
+
+
+[.source.topic]
+== Making a view stateless
+
+[source, html]
+----
+<f:view transient="true">
+    …
+</f:view>
+----
+
+[.topic]
+== On Stateless Applications...
+
+* Stateless _is not_ performant
+* Stateless _can lead to_ good scalability
+
+
+== !
+
+"Poorly designed _stateless application_ can be perceived as _non-performant_ and _unable to scale_ with a growing traffic."
+-- Random Wise Guy
+
+
+[.topic]
+== Other Considerations
+
+* _View pooling_
+** view construction is relatively cheap
+* _Parallel tree traversal_
+** won't help in multi-user environment
+
+You can always take over responsibility and wrap VDLFactory
+
+[.topic]
+== Beware of Implications
+
+* _@ViewScoped_
+** degrades to @RequestScoped
+* _@SessionScoped_
+** means creation of a session -> a state to maintain
+* _Security_
+** stateless views doesn't contain a viewState identifier
+
+
+[.topic.intro]
+== _modularity_ and _multi-tenancy_
+
+== !
+"_Modularity_ is the degree to which a system's components may be separated and recombined."
+-- Wikipedia
+
+== !
+"_Multitenancy_ refers to a principle where a _single instance_ of the software runs on a server, _serving multiple client-organizations_ (tenants)"
+-- Wikipedia
+
+[.intro]
+== !
+
+* _Faces Flows_ +
+modularize +
+_behavior_ +
+
+--- +
+
+
+* _Resource Library Contracts_ +
+modularize +
+_appearance_
+
+[.intro.topic]
+== Demo
+
+[.intro.topic]
+== Smaller *Features*
+
+[.intro.topic]
+== Features
+
+[.pull-right]
+* View Actions
+* CSRF protection
+* ClientWindow
+* CDI Injection in JSF artifacts
+* Iteration over Collections
+* File Upload
+
+[.topic.source]
+== View Actions
+
+[source, html]
+----
+<head>
+  
+  <f:metadata>
+    <f:viewParam name="contactId" value="#{contactDetail.item}" />
+    <f:viewAction action="#{contactDetail.fetchFromDatabase}" />
+  </f:metadata>
+
+</head>
+----
+
+== !
+
+"_Cross-Site Request Forgery_ (CSRF) is an attack which forces an end user to execute unwanted actions on a web application in which he/she is currently authenticated."
+-- Wikipedia
+
+
+[.topic.source]
+== CSRF Protection
+
+[source, html]
+----
+<form id="form">
+
+  <input type="hidden" name="javax.faces.ViewState" id="form:javax.faces.ViewState:0" value="4642030932120655237:-8467830116585452650" autocomplete="off" />
+
+</form>
+----
+
+* - ViewState encryption
+* - View token for rendering GET requests
+* - Referer and Origin headers
+
+
+[.topic.source]
+== Client Window
+[source, xml]
+----
+<context-param>
+    <param-name>javax.faces.CLIENT_WINDOW_MODE</param-name>
+    <param-value>url</param-value> 
+</context-param>
+----
+
+[source, java]
+----
+import javax.faces.lifecycle.ClientWindow;
+
+context.getExternalContext().getClientWindow();
+----
+
+[source, html]
+----
+<h:link outcome="detail" value="Link" />
+
+<a href=".../detail.jsf ? jfwid=518a78c52da3c025ab7a31cf4d50:6">Link</a>
+----
+
+[.topic]
+== CDI Injection into JSF artifacts
+
+* Action Listeners
+* ELResolvers
+* Factories
+* JSF singletons
+** ResourceHandler, StateManager, etc.
+
+[.topic]
+== Data Model Iteration (UIData)
+
+* JSF 2.0
+** List
+** Object[]
+** java.sql.ResultSet
+** javax.servlet.jsp.jstl.sql.Result
+** javax.faces.model.DataModel
+* JSF 2.2
+** Collection
+
+[.topic.source]
+== File Upload
+
+[source, html]
+----
+<h:inputFile value="#{fileUploadController}">
+    <f:validator validatorId="FileValidator" />
+</h:inputFile>
+----
+
+[source, java]
+----
+@Model
+public class UploadController {
+  
+  private Part uploadedFile; // getter & setter
+
+  public String readFileContent() {
+    return new StringReader(uploadedFile.getInputStream()).toString();
+  }
+}
+----
+
+[source, java]
+----
+@FacesValidator
+public class FileValidator implements Validator {
+    public void validator(..., Object value) throws ValidatorException {
+        Part file = (Part) value;
+        ...
+        if (...) { throw new ValidatorException(...); }
+    }
+}
+----
+
+
+[.intro.topic]
+== Small Features
+
+[.topic]
+== Small features
+
+* Programmatic Component Creation
+* @FacesComponent and @FacesValidator
+* Composite and Regular Components
+* Programmatic <faces-config>
+* Delayed AJAX
+* httpOnly cookies
+* other improvements
+
+[.topic.intro]
+== *RichFaces* 5.0 _&_ 4.5
+
+[.topic.intro]
+== _5_ News in _5.0_ +
+
+[.pull-right]
+* _New_ Architecture
+** _Shiny_ _Widgets_
+** _LESS_ & _Bootstrap_
+* _Easy_ Migration with 4.5
+* _Single_ JAR
+* _Single_ Namespace
+* _Simple_ Testing
+
+[.intro.topic]
+== _Single_ JAR & namespace
+
+[source]
+----
+richfaces.jar
+----
+
+[source]
+----
+xmlns:r="http://richfaces.org"
+----
+
+
+[.topic.intro]
+== New / Re-designed
+
+[.statement.pull-right]
+Chart +
+Pick List +
+Ordering List
+
+
+[.topic.intro]
+== New Component Architecture
+
+[.statement.pull-right]
+with _richwidgets_ project
+
+[.intro.topic]
+== _richwidgets_
+
+[.pull-right]
+- Client-Side
+- LESS skins
+- jQuery UI widgets
+- Bootstrap
+* grid layout
+* themes
+- Responsive
+
+
+
+[.topic.source]
+== Easy Migration with RF 4.5
+
+- same views (XHTML)
+- same behavior
+
+[source]
+----
+richfaces-5.0.0.Final.jar
+richfaces-components-a4j-4.5.0.Final.jar
+richfaces-components-rich-4.5.0.Final.jar
+----
+
+- RichFaces Core _5.0_ with Components _4.5_
+
+[.topic.intro]
+== Tested
+
+[.statement]
+by Arquillian
+
+[.pull-right]
+* Framework Tests
+** Arquillian _Graphene_
+** Arquillian _Warp_
+* Page Fragments
+
+[.source.topic]
+== Page Fragments
+
+[source, java]
+----
+@Page
+private TestPage testPage;
+
+@Test
+public void test_suggestions {
+
+    Autocomplete<String> autocomplete = testPage.getAutocomplete();
+
+    assertFalse(autocomplete.areSuggestionsAvailable(), 
+        "The suggestion list should not be visible");
+
+    autocomplete.type("ar");
+
+    List<String> expectedSuggestions = Arrays.asList("Arizona", "Arkansas");
+
+    assertEquals(autocomplete.getAllSuggestions(), expectedSuggestions);
+}
+----
